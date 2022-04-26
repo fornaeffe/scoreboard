@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
-import { aggiungiSquadra, aumentaPunteggio, cambiaPunteggio, getStato, rimuoviSquadra, Squadra, useMotore } from './motore';
+import { aggiungiSquadra, aumentaPunteggio, cambiaPunteggio, getStato, rimuoviSquadra, setStato, Squadra, useMotore } from './motore';
 import TextField from '@mui/material/TextField';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -11,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import './App.css';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import { ApriDati, SalvaDati } from './storage';
 
 
 function App() {
@@ -19,6 +20,14 @@ function App() {
   return (
     <div className="App">
       <CssBaseline />
+      <div className='contenitore_titolo'>
+        <div className='scatola_titolo'><div className='titolo'>Segnapunti</div></div>
+        
+        <ApriDati aggiornaDati={setStato} />
+        <SalvaDati dati={getStato()} />
+      </div>
+
+      
       {getStato().elencoSquadre.map((s, i) => <RigaSquadra key={i} i={i} />)}
       <RigaNuovaSquadra />
     </div>
@@ -36,7 +45,6 @@ function RigaSquadra(props: {
   }
 
   function setModifica(val : boolean) {
-    console.log(val)
     setStato({...stato, modifica: val})
   }
 
@@ -73,7 +81,7 @@ function RigaSquadra(props: {
     
     { stato.modifica ?
       <ModificaPunteggio punteggio={s.punteggio} i={props.i} onChiudi={() => setModifica(false)} />:
-      <Avatar sx={{ bgcolor: 'hsl(' + s.colore + ', 100%, 65%)', color: 'black' }} >{s.punteggio}</Avatar>
+      <Avatar sx={{ bgcolor: 'hsl(' + s.colore + ', 100%, 65%)', color: 'black', transition: 'all 1s' }} >{s.punteggio}</Avatar>
     }
 
     <div className='nome_squadra'>{s.nome}</div>
