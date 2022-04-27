@@ -1,5 +1,22 @@
 import { useEffect, useState } from "react"
 
+export type Squadra = {
+	nome: string
+	punteggio: number
+	colore: number
+  }
+  
+type Stato = {
+elencoSquadre: Squadra[]
+}
+
+
+const stato_iniziale : Stato = {
+elencoSquadre: []
+}
+
+let stato = stato_iniziale
+
 const evento = new Event('cambioStato')
 
 export function useMotore() {
@@ -39,23 +56,12 @@ export function cambiaPunteggio(id: number, punteggio: number) {
 	document.body.dispatchEvent(evento)
 }
 
-export type Squadra = {
-  nome: string
-  punteggio: number
-  colore: number
-}
-
-type Stato = {
-  elencoSquadre: Squadra[]
-}
-  
-
-const stato_iniziale : Stato = {
-  elencoSquadre: []
-}
-
-let stato = stato_iniziale
-
 export function getStato() {
 	return stato
+}
+
+export function valoreMassimoBarre() {
+	const n = stato.elencoSquadre.reduce((a, b) => Math.max(a, b.punteggio), 1) * 1.2
+	const m = Math.pow(10, Math.ceil(Math.log10(n+1)))
+	return Math.max(20, n * 2 < m ? m / 2 : m)
 }

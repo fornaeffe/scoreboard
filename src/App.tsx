@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
-import { aggiungiSquadra, aumentaPunteggio, cambiaPunteggio, getStato, rimuoviSquadra, setStato, Squadra, useMotore } from './motore';
+import { aggiungiSquadra, aumentaPunteggio, cambiaPunteggio, getStato, rimuoviSquadra, setStato, Squadra, useMotore, valoreMassimoBarre } from './motore';
 import TextField from '@mui/material/TextField';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -77,7 +77,7 @@ function RigaSquadra(props: {
 
     <div className='contenitore_barra'>
 
-      <div className='barra' style={{ width : s.punteggio + '%', backgroundColor: 'hsl(' + s.colore + ', 100%, 75%)'}}></div>
+      <div className='barra' style={{ width : s.punteggio / valoreMassimoBarre() * 100 + '%', backgroundColor: 'hsl(' + s.colore + ', 100%, 75%)'}}></div>
 
       { stato.modifica ?
         <ModificaPunteggio punteggio={s.punteggio} i={props.i} onChiudi={() => setModifica(false)} /> :
