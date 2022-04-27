@@ -51,40 +51,43 @@ function RigaSquadra(props: {
   const s = getStato().elencoSquadre[props.i]
 
   return <div 
-    className='riga_squadra'
-    onMouseEnter={(e) => {if (!stato.modifica) setAttivo(true)}}
-    onMouseLeave={(e) => {if (!stato.modifica) setAttivo(false)}}
-    onClick={(e) => {if (!stato.modifica) setAttivo(!stato.attivo)}}
+  className='riga_squadra'
+  onMouseEnter={(e) => {if (!stato.modifica) setAttivo(true)}}
+  onMouseLeave={(e) => {if (!stato.modifica) setAttivo(false)}}
+  onClick={(e) => {if (!stato.modifica) setAttivo(!stato.attivo)}}
   >
     <div className='pulsantiera'>
-    {
-      stato.attivo ?
-      <>
-        <IconButton onClick={
-          (e) => {
-            aumentaPunteggio(props.i)
-            e.stopPropagation()
+      { stato.attivo ?
+        <>
+          <IconButton onClick={
+            (e) => {
+              aumentaPunteggio(props.i)
+              e.stopPropagation()
+            }
+          }>+1</IconButton>
+          {stato.modifica ? 
+            <IconButton onClick={(e) => {setModifica(false); e.stopPropagation()}}><CloseIcon /></IconButton> : 
+            <IconButton onClick={(e) => {setModifica(true); e.stopPropagation()}}><EditIcon /></IconButton>
           }
-        }>+1</IconButton>
-        {stato.modifica ? 
-          <IconButton onClick={(e) => {setModifica(false); e.stopPropagation()}}><CloseIcon /></IconButton> : 
-          <IconButton onClick={(e) => {setModifica(true); e.stopPropagation()}}><EditIcon /></IconButton>
-        }
-        <IconButton onClick={(e) => rimuoviSquadra(props.i)}><DeleteIcon /></IconButton>
-      </> :
-      <></>
-    }
+          <IconButton onClick={(e) => rimuoviSquadra(props.i)}><DeleteIcon /></IconButton>
+        </> :
+        <></>
+      }
     </div>
 
-    <div className='barra' style={{ width : s.punteggio + '%', backgroundColor: 'hsl(' + s.colore + ', 100%, 75%)'}}>
-    </div>
-    
-    { stato.modifica ?
-      <ModificaPunteggio punteggio={s.punteggio} i={props.i} onChiudi={() => setModifica(false)} />:
-      <Avatar sx={{ bgcolor: 'hsl(' + s.colore + ', 100%, 65%)', color: 'black', transition: 'all 1s' }} >{s.punteggio}</Avatar>
-    }
+    <div className='contenitore_barra'>
 
-    <div className='nome_squadra'>{s.nome}</div>
+      <div className='barra' style={{ width : s.punteggio + '%', backgroundColor: 'hsl(' + s.colore + ', 100%, 75%)'}}></div>
+
+      { stato.modifica ?
+        <ModificaPunteggio punteggio={s.punteggio} i={props.i} onChiudi={() => setModifica(false)} /> :
+        <Avatar sx={{ bgcolor: 'hsl(' + s.colore + ', 100%, 65%)', color: 'black', transition: 'all 1s' }} >{s.punteggio}</Avatar>
+      }
+
+      <div className='nome_squadra'>{s.nome}</div>
+
+    </div>
+
   </div>
 }
 
