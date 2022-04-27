@@ -89,22 +89,40 @@ function RigaSquadra(props: {
 }
 
 function ModificaPunteggio(props: {punteggio: number, i: number, onChiudi: () => void}) {
-  const [valore, setValore] = useState(props.punteggio)
+  const [valore, setValore] = useState(props.punteggio.toString())
+
+  function conferma() {
+    const valoreNumerico = Number(valore)
+
+    if (isNaN(valoreNumerico))
+      return
+
+    cambiaPunteggio(props.i, parseFloat(valore))
+    props.onChiudi()
+  }
 
   return <>
-    <TextField label="Punt." value={valore} onChange={(e) => setValore(parseFloat(e.target.value))} sx={{width: '4em'}} />
-    <IconButton aria-label="Conferma" color="primary" onClick={(e) => {
-      cambiaPunteggio(props.i, valore)
-      props.onChiudi()
-      }}><CheckIcon /></IconButton>
+    <TextField 
+    label="Punt." 
+    sx={{width: '4em'}} 
+    value={valore}
+    error={isNaN(Number(valore))}
+    onChange={(e) => setValore(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && conferma()}
+    />
+    <IconButton 
+    aria-label="Conferma" 
+    color="primary" 
+    onClick={(e) => conferma()}
+    >
+      <CheckIcon />
+    </IconButton>
   </>
 }
 
-// <div className='punteggio' style={{ backgroundColor: 'hsl(' + props.s.colore + ', 100%, 50%)'}}><div>{props.s.punteggio}</div></div>
-
 function RigaNuovaSquadra() {
   const [attivo, setAttivo] = useState(false)
-  return <div>
+  return <div className='riga_nuova_squadra'>
       {attivo ? 
        <InputNuovaSquadra onChiudi={() => setAttivo(false)}/> :
        <Button onClick={(e) => setAttivo(true)} startIcon={<AddIcon />}>Aggiungi squadra</Button>
@@ -115,15 +133,35 @@ function RigaNuovaSquadra() {
 function InputNuovaSquadra(props: {onChiudi: () => void}) {
   const [nome, setNome] = useState('')
 
+  function conferma() {
+    aggiungiSquadra(nome)
+    props.onChiudi()
+  }
+
   return <>
-    <TextField id="nome-nuova-squadra" label="Nome squadra" value={nome} onChange={(e) => setNome(e.target.value)} />
-    <IconButton aria-label="Conferma" color="primary" onClick={(e) => {
-      aggiungiSquadra(nome)
-      props.onChiudi()
-      }}><CheckIcon /></IconButton>
-      <IconButton aria-label="Annulla" color="primary" onClick={(e) => {
-      props.onChiudi()
-      }}><CloseIcon /></IconButton>
+    <TextField 
+    id="nome-nuova-squadra" 
+    label="Nome squadra"
+    margin="normal"
+    autoFocus
+    value={nome} 
+    onChange={(e) => setNome(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && conferma()}
+    />
+    <IconButton 
+    aria-label="Conferma" 
+    color="primary" 
+    onClick={(e) => conferma()}
+    >
+      <CheckIcon />
+    </IconButton>
+    <IconButton 
+    aria-label="Annulla" 
+    color="primary" 
+    onClick={(e) => props.onChiudi()}
+    >
+      <CloseIcon />
+    </IconButton>
   </>
 }
 

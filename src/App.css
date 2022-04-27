@@ -51,6 +51,11 @@
     transition: all 1s;
 }
 
-.nome_squadra{
+.nome_squadra {
     transition: all 1s;
+}
+
+.riga_nuova_squadra {
+    display: flex;
+    align-items: center;
 }
