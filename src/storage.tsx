@@ -3,6 +3,7 @@ import Switch from '@mui/material/Switch'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DownloadIcon from '@mui/icons-material/Download'
 import UploadIcon from '@mui/icons-material/Upload'
+import { useTranslation } from 'react-i18next'
 
 let fileHandle : FileSystemFileHandle
 
@@ -32,13 +33,13 @@ async function scegliFileApri(aggiornaDati: (dati: any) =>  void) {
     }
 }
 
-async function scegliFileSalva(dati: any) {
+async function scegliFileSalva(dati: any, fileName: string, textFileDescription: string) {
     try {
 
         fileHandle = await window.showSaveFilePicker({
-            suggestedName: 'dati.txt',
+            suggestedName: fileName,
             types: [{
-              description: 'Text file',
+              description: textFileDescription,
               accept: {'text/plain': ['.txt']},
             }],
           })
@@ -51,22 +52,28 @@ async function scegliFileSalva(dati: any) {
 }
 
 export function ApriDati(props: {aggiornaDati: (dati: any) =>  void}) {
+    const { t } = useTranslation()
+
     return <Button onClick={(e) => scegliFileApri(props.aggiornaDati)} startIcon={<UploadIcon />}>
-        Carica
+        {t('actions.load')}
     </Button>
 }
 
 
 export function SalvaDati(props: {dati: any}) {
-    return <Button onClick={(e) => scegliFileSalva(props.dati)} startIcon={<DownloadIcon />}>
-        Salva
+    const { t } = useTranslation()
+
+    return <Button onClick={(e) => scegliFileSalva(props.dati, t('storage.fileName'), t('storage.textFile'))} startIcon={<DownloadIcon />}>
+        {t('actions.save')}
     </Button>
 }
 
 export function AutoSaveSwitch(props: { value: boolean, onChange: () => void }) {
+    const { t } = useTranslation()
+
     return <FormControlLabel control={<Switch 
             checked={props.value}
             onChange={(e) => props.onChange()}
-        />} label="AutoSave" />
+        />} label={t('storage.autoSave')} />
     
   };

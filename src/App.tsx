@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
-import { aggiungiSquadra, aumentaPunteggio, cambiaPunteggio, getStato, rimuoviSquadra, setStato, Squadra, useMotore, valoreMassimoBarre } from './motore';
+import { aggiungiSquadra, aumentaPunteggio, cambiaPunteggio, getStato, rimuoviSquadra, setStato, useMotore, valoreMassimoBarre } from './motore';
 import TextField from '@mui/material/TextField';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -12,19 +12,43 @@ import './App.css';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { ApriDati, SalvaDati } from './storage';
+import { useTranslation } from 'react-i18next';
+import { supportedLanguages } from './i18n';
 
+const githubRepoUrl = 'https://github.com/fornaeffe/scoreboard';
+const licenseUrl = `${githubRepoUrl}/blob/main/LICENSE`;
 
 function App() {
   useMotore()
+  const { t, i18n } = useTranslation()
+
+  useEffect(() => {
+    const language = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0]
+    document.documentElement.lang = language
+    document.title = t('app.title')
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t('app.description'))
+  }, [i18n.language, i18n.resolvedLanguage, t])
   
   return (
     <div className="App">
       <CssBaseline />
       <div className='contenitore_titolo'>
-        <div className='scatola_titolo'><div className='titolo'>Segnapunti</div></div>
+        <div className='scatola_titolo'><div className='titolo'>{t('app.title')}</div></div>
         
-        <ApriDati aggiornaDati={setStato} />
-        <SalvaDati dati={getStato()} />
+        <div className='azioni_titolo'>
+          <ApriDati aggiornaDati={setStato} />
+          <SalvaDati dati={getStato()} />
+          <div className='meta_titolo'>
+            <LanguageSelector />
+            <a className='link_meta' href={githubRepoUrl} aria-label={t('links.githubAria')} title={t('links.githubAria')}>
+              {t('links.github')}
+            </a>
+            <span className='separatore_meta' aria-hidden='true'>·</span>
+            <a className='link_meta' href={licenseUrl} aria-label={t('links.licenseAria')} title={t('links.licenseAria')}>
+              {t('links.license')}
+            </a>
+          </div>
+        </div>
       </div>
 
       
@@ -34,9 +58,26 @@ function App() {
   );
 }
 
+function LanguageSelector() {
+  const { t, i18n } = useTranslation()
+  const language = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0]
+  const currentLanguage = supportedLanguages.some(supportedLanguage => supportedLanguage.code === language) ? language : 'en'
+
+  return <select
+    className='selettore_lingua'
+    aria-label={t('language.selectorLabel')}
+    title={t('language.selectorLabel')}
+    value={currentLanguage}
+    onChange={(e) => i18n.changeLanguage(e.target.value)}
+  >
+    {supportedLanguages.map(language => <option key={language.code} value={language.code}>{language.label}</option>)}
+  </select>
+}
+
 function RigaSquadra(props: {
   i: number
 }) {
+  const { t } = useTranslation()
 
   const [stato, setStato] = useState({attivo: false, modifica: false})
 
@@ -49,6 +90,10 @@ function RigaSquadra(props: {
   }
 
   const s = getStato().elencoSquadre[props.i]
+  const incrementScoreLabel = t('actions.incrementScore', {team: s.nome})
+  const editScoreLabel = t('actions.editScore', {team: s.nome})
+  const closeScoreEditorLabel = t('actions.closeScoreEditor')
+  const deleteTeamLabel = t('actions.deleteTeam', {team: s.nome})
 
   return <div 
   className='riga_squadra'
@@ -64,12 +109,12 @@ function RigaSquadra(props: {
               aumentaPunteggio(props.i)
               e.stopPropagation()
             }
-          }>+1</IconButton>
+          } aria-label={incrementScoreLabel} title={incrementScoreLabel}>+1</IconButton>
           {stato.modifica ? 
-            <IconButton onClick={(e) => {setModifica(false); e.stopPropagation()}}><CloseIcon /></IconButton> : 
-            <IconButton onClick={(e) => {setModifica(true); e.stopPropagation()}}><EditIcon /></IconButton>
+            <IconButton aria-label={closeScoreEditorLabel} title={closeScoreEditorLabel} onClick={(e) => {setModifica(false); e.stopPropagation()}}><CloseIcon /></IconButton> : 
+            <IconButton aria-label={editScoreLabel} title={editScoreLabel} onClick={(e) => {setModifica(true); e.stopPropagation()}}><EditIcon /></IconButton>
           }
-          <IconButton onClick={(e) => rimuoviSquadra(props.i)}><DeleteIcon /></IconButton>
+          <IconButton aria-label={deleteTeamLabel} title={deleteTeamLabel} onClick={(e) => {rimuoviSquadra(props.i); e.stopPropagation()}}><DeleteIcon /></IconButton>
         </> :
         <></>
       }
@@ -92,6 +137,7 @@ function RigaSquadra(props: {
 }
 
 function ModificaPunteggio(props: {punteggio: number, i: number, onChiudi: () => void}) {
+  const { t } = useTranslation()
   const [valore, setValore] = useState(props.punteggio.toString())
 
   function conferma() {
@@ -106,7 +152,7 @@ function ModificaPunteggio(props: {punteggio: number, i: number, onChiudi: () =>
 
   return <>
     <TextField 
-    label="Punt." 
+    label={t('fields.scoreShort')} 
     sx={{width: '4em'}} 
     value={valore}
     error={isNaN(Number(valore))}
@@ -114,7 +160,8 @@ function ModificaPunteggio(props: {punteggio: number, i: number, onChiudi: () =>
     onKeyDown={(e) => e.key === "Enter" && conferma()}
     />
     <IconButton 
-    aria-label="Conferma" 
+    aria-label={t('actions.confirm')} 
+    title={t('actions.confirm')}
     color="primary" 
     onClick={(e) => conferma()}
     >
@@ -124,16 +171,18 @@ function ModificaPunteggio(props: {punteggio: number, i: number, onChiudi: () =>
 }
 
 function RigaNuovaSquadra() {
+  const { t } = useTranslation()
   const [attivo, setAttivo] = useState(false)
   return <div className='riga_nuova_squadra'>
       {attivo ? 
        <InputNuovaSquadra onChiudi={() => setAttivo(false)}/> :
-       <Button onClick={(e) => setAttivo(true)} startIcon={<AddIcon />}>Aggiungi squadra</Button>
+       <Button onClick={(e) => setAttivo(true)} startIcon={<AddIcon />}>{t('actions.addTeam')}</Button>
       }
     </div>
 }
 
 function InputNuovaSquadra(props: {onChiudi: () => void}) {
+  const { t } = useTranslation()
   const [nome, setNome] = useState('')
 
   function conferma() {
@@ -144,7 +193,7 @@ function InputNuovaSquadra(props: {onChiudi: () => void}) {
   return <>
     <TextField 
     id="nome-nuova-squadra" 
-    label="Nome squadra"
+    label={t('fields.teamName')}
     margin="normal"
     autoFocus
     value={nome} 
@@ -152,14 +201,16 @@ function InputNuovaSquadra(props: {onChiudi: () => void}) {
     onKeyDown={(e) => e.key === "Enter" && conferma()}
     />
     <IconButton 
-    aria-label="Conferma" 
+    aria-label={t('actions.confirm')} 
+    title={t('actions.confirm')}
     color="primary" 
     onClick={(e) => conferma()}
     >
       <CheckIcon />
     </IconButton>
     <IconButton 
-    aria-label="Annulla" 
+    aria-label={t('actions.cancel')} 
+    title={t('actions.cancel')}
     color="primary" 
     onClick={(e) => props.onChiudi()}
     >
